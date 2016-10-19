@@ -1,0 +1,39 @@
+version: '2'
+services:
+  prestashop:
+    image: prestashop/prestashop:1.6
+    environment:
+      - DB_SERVER=mysql
+      - DB_USER=root
+      - DB_PASSWD=root
+      - PS_LANGUAGE=fr
+      - PS_COUNTRY=FR
+    links:
+      - mysql
+    depends_on:
+      - mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql
+    environment:
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
+  nginx:
+    image: nginx:1.11
+    ports:
+      - "80:80"
+    links:
+      - prestashop
+      - phpmyadmin
+    volumes:
+      - ./config.d/:/etc/nginx/conf.d/
+    depends_on:
+      - prestashop
+      - phpmyadmin
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=prestashop
